@@ -1,0 +1,11 @@
+version: "3.7"
+
+services:
+  useful_py_sandbox:
+    container_name: useful_py_sandbox
+    build: .
+    image: useful_py_sandbox
+    env_file:
+      - .env
+    volumes:
+      - ./src:/home/src

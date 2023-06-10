@@ -1,0 +1,9 @@
+requests
+python-dotenv
+pytest
+google-search-results
+ipykernel
+boto3
+medium-api
+pytrends
+matplotlib
