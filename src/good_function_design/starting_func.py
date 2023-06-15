@@ -1,6 +1,6 @@
 import requests
 import json
-import pandas as pd
+import boto3
 
 # API URL
 url = f"https://api.mypurecloud.com.au/api/v2/analytics/app_on"
@@ -13,7 +13,10 @@ def get_data(
     interval_granularity,
     interval_type,
     queue_IDs,
-    output_filename,
+    aws_access_key,
+    aws_secret_access_key,
+    bucket_name,
+    key_name,
 ):
     # Request headers
     headers = {
@@ -31,9 +34,15 @@ def get_data(
 
     # Call API
     queues_data = requests.post(url, headers=headers, json=payload)
-    data = queues_data.json()
-    # Write to json file
-    with open(f"{output_filename}.json", "w") as json_file:
-        json.dump(data, json_file)
+    data = queues_data.json()["results"][0]["data"]
+
+    # Write json to s3
+    session = boto3.Session(
+        aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_access_key
+    )
+    s3 = session.resource("s3")
+    s3.Object(bucket_name, key_name).put(
+        Body=json.dumps(data), ContentType="application/json"
+    )
 
     return data
