@@ -1,8 +1,21 @@
 import requests
+import boto3
 import json
 from dataclasses import dataclass
+import os
+from dotenv import load_dotenv
 
-ACCESS_TOKEN = "my_token"
+load_dotenv()
+
+
+API_ACCESS_TOKEN = os.getenv("API_ACCESS_TOKEN")
+AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
+
+STARTING_URL = "https://api.mypurecloud.com.au/api/v2/analytics/"
+TARGET_APP = "app_one"
+REPORT_NAME = "sales"
 
 
 @dataclass
@@ -28,9 +41,9 @@ def create_request_payload(interval_type, interval_granularity):
     }
 
 
-def create_request_params(target_app, headers, payload):
+def create_request_params(starting_url, target_app, headers, payload):
     return RequestParams(
-        url=f"https://api.mypurecloud.com.au/api/v2/analytics/{target_app}",
+        url=starting_url + target_app,
         headers=headers,
         payload=payload,
     )
@@ -46,19 +59,30 @@ def extract_data_from_response(response):
     return response["results"][0]["data"]
 
 
-def save_data_to_json_file(data, output_filename):
-    with open(f"{output_filename}.json", "w") as json_file:
-        json.dump(data, json_file)
+def get_s3_session_object(aws_access_key, aws_secret_access_key):
+    session = boto3.Session(
+        aws_access_key_id=aws_access_key,
+        aws_secret_access_key=aws_secret_access_key,
+    )
+    return session.resource("s3")
+
+
+def save_json_to_s3(data, bucket_name, key_name, s3_session):
+    s3_session.Object(bucket_name, key_name).put(
+        Body=json.dumps(data), ContentType="application/json"
+    )
 
 
 def main() -> None:
-    headers = create_request_header(ACCESS_TOKEN, "app_one")
+    headers = create_request_header(API_ACCESS_TOKEN, TARGET_APP)
     payload = create_request_payload("interval", "minute")
-    request_params = request_params("app_one", headers, payload)
+    request_params = create_request_params(TARGET_APP, headers, payload)
     response = call_api(request_params)
     if response.status_code == 200:
-        data = extract_data_from_response(response)
-        save_data_to_json_file(data, "data")
+        s3 = get_s3_session_object(AWS_ACCESS_KEY, AWS_SECRET_ACCESS_KEY)
+        save_json_to_s3(
+            extract_data_from_response(response), S3_BUCKET_NAME, REPORT_NAME, s3
+        )
 
 
 if __name__ == "__main__":
