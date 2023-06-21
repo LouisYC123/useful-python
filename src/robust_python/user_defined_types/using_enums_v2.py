@@ -44,35 +44,29 @@ df
 from enum import Enum
 
 
-class Departments(Enum):
-    FINANCE = "finance"
-    HR = "human_resources"
-    SALES = "sales"
-    RESEARCH = "research"
-    DATA_ANALYTICS = "data_analytics"
-    ENGINEERING = "engineering"
-    MARKETING = "marketing"
+class DepartmentBonus(Enum):
+    FINANCE = 1.1
+    HR = 1.25
+    SALES = 1.1
+    RESEARCH = 1.5
+    DATA_ANALYTICS = 1.1
+    ENGINEERING = 1.3
+    MARKETING = 1.4
 
 
-def create_total_spend_column(
+def bonus_multiplier(
     df: pd.DataFrame,
     target_department: Departments,
 ) -> pd.DataFrame:
-    """Sums columns for a target_department"""
-    target_cols = [col for col in df.columns if target_department.value in col]
+    """Multiplies value by their department bonus rate"""
+    target_cols = [col for col in df.columns if target_department in col]
     df[f"Total {target_department}"] = df[target_cols].sum(axis=1)
     return df
 
 
-df = create_total_spend_column(df, Departments.SALES)
+df = create_total_spend_column(df, Departments.HR.value)
 
-
-def calculate_department_bonus(dept: Departments):
-    print(dept.value)
-
-
-calculate_department_bonus(Departments.SALES)
-
+df
 # %%
 # ============================== Write up
 """
