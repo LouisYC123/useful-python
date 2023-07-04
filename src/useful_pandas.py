@@ -208,6 +208,11 @@ df["create_this_col"] = np.select(conditions, choices, default=default_value)
 
 
 # -----------------------------------------------------------------------------
+# --- Split a string into multiple columns
+df[["break_start", "break_end"]] = df.UnpaidBreaks.str.split("=>", 1, expand=True)
+
+
+# -----------------------------------------------------------------------------
 # --- Open and read a SQL script
 sql_script_path = "my+path"
 fd = open(f"{sql_script_path}get_card_data.sql", "r")
