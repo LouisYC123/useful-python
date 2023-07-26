@@ -12,16 +12,20 @@ Output: "fl"
 
 
 strs = ["flower", "flow", "flight"]
-strs = ["dog", "racecar", "car"]
+# strs = ["dog", "racecar", "car"]
+# strs =  ["reflower","flow","flight"]
 common_prefix = []
 idx = 1
 for i in range(len(max(strs))):
     for word in strs:
         if i < len(word):
-            if all(word[:idx] in string for string in strs):
+            if all(word[:idx] in string[:idx] for string in strs):
                 common_prefix.append(word[:idx])
     idx += 1
 if common_prefix:
     print(max(common_prefix))
 else:
     print("")
+
+
+# %%
