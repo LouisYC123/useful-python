@@ -15,45 +15,21 @@ s consists of parentheses only '()[]{}'.
 
 """
 
-# %%
-bracket_dict = {
-    "(":")",
-    "[":"]",
-    "{":"}",
-    ")":"(",
-    "}":"{",
-    "]":"[",
-}
-
-# %%
-s = "()[]{}"
-# s = "()"
-# s = "(]"
-
-
-pairs = [(s[i], s[i+1]) for i in range(0, len(s)-1, 2)]
-
-[True for pair in pairs if ]
-
-
-# %%
-tracker = []
-set_skip = False
-for char in s:
-    idx = s.index(char)
-    if idx != len(s) -1:
-        if set_skip:
-            idx += 1
-            set_skip = False
-        if bracket_dict[char] == s[idx + 1]:
-            tracker.append(True)
-            set_skip = True
+def validate_string(s: str):
+    stack = []
+    pairs = {
+        '(':')',
+        '{':'}',
+        '[':']',
+    }
+    for bracket in s:
+        if bracket in pairs.keys():
+            stack.append(bracket)
         else:
-            tracker.append(False)
-if all(tracker):
-    print('success')
-else:
-    print('fail')
-# %%
-len(s)
+            if len(stack) == 0 or bracket != pairs[stack.pop()]:
+                return False
+    return len(stack) == 0
+
+validate_string("()[{}]")
+
 # %%
